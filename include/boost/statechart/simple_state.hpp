@@ -310,22 +310,28 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
       return detail::result_utility::make_result( detail::do_defer_event );
     }
 
+    template< class DestinationState >
+    result transit()
+    {
+      return transit_impl< DestinationState, outermost_context_type >(
+        detail::no_transition_function(), detail::empty_args() );
+    }
+
     template< class DestinationState, class Args >
-    result transit(Args const &_args = detail::empty_args())
+    result transit(Args const &_args)
     {
       return transit_impl< DestinationState, outermost_context_type >(
         detail::no_transition_function(), _args );
     }
 
-    template< class DestinationState, class TransitionContext, class Event, class Args>
+    template< class DestinationState, class TransitionContext, class Event >
     result transit(
       void ( TransitionContext::*pTransitionAction )( const Event & ),
-      const Event & evt,
-      Args const &_args = detail::empty_args())
+      const Event & evt )
     {
       return transit_impl< DestinationState, TransitionContext >(
         detail::transition_function< TransitionContext, Event >(
-          pTransitionAction, evt ), _args );
+          pTransitionAction, evt ), detail::empty_args() );
     }
 
     result terminate()
