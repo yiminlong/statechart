@@ -12,8 +12,6 @@
 
 #include <boost/mpl/list.hpp>
 
-
-
 namespace boost
 {
 namespace statechart
@@ -67,29 +65,47 @@ class state : public simple_state<
     static void initial_deep_construct(
       outermost_context_base_type & outermostContextBase )
     {
-      deep_construct( &outermostContextBase, outermostContextBase );
+      deep_construct( &outermostContextBase, outermostContextBase, detail::empty_args() );
     }
 
     // See base class for documentation
+    template<typename Args>
     static void deep_construct(
       const context_ptr_type & pContext,
-      outermost_context_base_type & outermostContextBase )
+      outermost_context_base_type & outermostContextBase,
+      Args const &_args)
     {
       const inner_context_ptr_type pInnerContext(
-        shallow_construct( pContext, outermostContextBase ) );
+        shallow_construct( pContext, outermostContextBase, _args ) );
       base_type::template deep_construct_inner< inner_initial_list >(
         pInnerContext, outermostContextBase );
     }
 
-    static inner_context_ptr_type shallow_construct(
+    static inner_context_ptr_type
+    shallow_construct(
       const context_ptr_type & pContext,
-      outermost_context_base_type & outermostContextBase )
+      outermost_context_base_type & outermostContextBase,
+      detail::empty_args const &)
     {
       const inner_context_ptr_type pInnerContext(
         new MostDerived( my_context( pContext ) ) );
       outermostContextBase.add( pInnerContext );
       return pInnerContext;
     }
+
+    template<typename Args>
+    static inner_context_ptr_type
+    shallow_construct(
+      const context_ptr_type & pContext,
+      outermost_context_base_type & outermostContextBase,
+      Args const &_args)
+    {
+      const inner_context_ptr_type pInnerContext(
+        new MostDerived( my_context( pContext ), _args ) );
+      outermostContextBase.add( pInnerContext );
+      return pInnerContext;
+    }
+
 };
 
 

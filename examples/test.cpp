@@ -3,6 +3,8 @@
 #include <boost/statechart/custom_reaction.hpp>
 #include <boost/statechart/result.hpp>
 #include <boost/mpl/list.hpp>
+#include <iostream>
+#include <ostream>
 
 struct event
 :
@@ -43,7 +45,7 @@ public:
 		::event const &
 	)
 	{
-		return transit<state2>();
+		return transit<state2>(42);
 	}
 };
 
@@ -56,15 +58,25 @@ class state2
 {
 public:
 	explicit state2(
-		my_context _ctx
+		my_context _ctx,
+		int const _foo
 	)
 	:
 		my_base(
 			_ctx
 		)
-	{}
+	{
+		std::cout << _foo << '\n';
+	}
 };
 
 int main()
 {
+	::machine machine;
+
+	machine.initiate();
+
+	machine.process_event(
+		::event()
+	);
 }

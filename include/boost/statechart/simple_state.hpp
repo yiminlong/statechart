@@ -108,6 +108,9 @@ struct no_transition_function
   void operator()( CommonContext & ) const {}
 };
 
+struct empty_args
+{};
+
 template< class TransitionContext, class Event >
 class transition_function
 {
@@ -311,7 +314,14 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
     result transit()
     {
       return transit_impl< DestinationState, outermost_context_type >(
-        detail::no_transition_function() );
+        detail::no_transition_function(), detail::empty_args() );
+    }
+
+    template< class DestinationState, class Args >
+    result transit(Args const &_args)
+    {
+      return transit_impl< DestinationState, outermost_context_type >(
+        detail::no_transition_function(), _args );
     }
 
     template< class DestinationState, class TransitionContext, class Event >
@@ -321,7 +331,7 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
     {
       return transit_impl< DestinationState, TransitionContext >(
         detail::transition_function< TransitionContext, Event >(
-          pTransitionAction, evt ) );
+          pTransitionAction, evt ), detail::empty_args() );
     }
 
     result terminate()
@@ -704,8 +714,9 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
 
     template< class DestinationState,
               class TransitionContext,
-              class TransitionAction >
-    result transit_impl( const TransitionAction & transitionAction )
+              class TransitionAction,
+              class Args >
+    result transit_impl( const TransitionAction & transitionAction, Args const &_args)
     {
       typedef typename mpl::find_if<
         context_type_list,
@@ -804,7 +815,7 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
 
       detail::constructor<
         context_list_type, outermost_context_base_type >::construct(
-          pCommonContext, outermostContextBase );
+          pCommonContext, outermostContextBase, _args );
 
       return detail::result_utility::make_result( detail::do_discard_event );
     }
