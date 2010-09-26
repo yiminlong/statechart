@@ -30,7 +30,7 @@ namespace statechart
 namespace detail
 {
 
-
+struct empty_args{};
 
 template< class ContextList, class OutermostContextBase >
 struct constructor;
@@ -71,7 +71,7 @@ struct outer_constructor
     Args const &_args)
   {
     const inner_context_ptr_type pInnerContext =
-      to_construct::shallow_construct( pContext, outermostContextBase, _args );
+      to_construct::shallow_construct( pContext, outermostContextBase, detail::empty_args() );
     to_construct::template deep_construct_inner<
       first_inner_initial_list >( pInnerContext, outermostContextBase );
     constructor< inner_context_list, OutermostContextBase >::construct(

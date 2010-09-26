@@ -108,9 +108,6 @@ struct no_transition_function
   void operator()( CommonContext & ) const {}
 };
 
-struct empty_args
-{};
-
 template< class TransitionContext, class Event >
 class transition_function
 {
