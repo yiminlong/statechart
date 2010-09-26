@@ -598,22 +598,24 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
     static void initial_deep_construct(
       outermost_context_base_type & outermostContextBase )
     {
-      deep_construct( &outermostContextBase, outermostContextBase );
+      deep_construct( &outermostContextBase, outermostContextBase, detail::empty_args() );
     }
 
     static void deep_construct(
       const context_ptr_type & pContext,
-      outermost_context_base_type & outermostContextBase )
+      outermost_context_base_type & outermostContextBase,
+      detail::empty_args const &_args)
     {
       const inner_context_ptr_type pInnerContext(
-        shallow_construct( pContext, outermostContextBase ) );
+        shallow_construct( pContext, outermostContextBase, _args ) );
       deep_construct_inner< inner_initial_list >(
         pInnerContext, outermostContextBase );
     }
 
     static inner_context_ptr_type shallow_construct(
       const context_ptr_type & pContext,
-      outermost_context_base_type & outermostContextBase )
+      outermost_context_base_type & outermostContextBase,
+      detail::empty_args const &)
     {
       const inner_context_ptr_type pInnerContext( new MostDerived );
       pInnerContext->set_context( pContext );
@@ -908,7 +910,7 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
             typename current_inner::context_type::inner_initial_list,
             typename current_inner::orthogonal_position >::type >::value ) );
 
-        current_inner::deep_construct( pInnerContext, outermostContextBase );
+        current_inner::deep_construct( pInnerContext, outermostContextBase, detail::empty_args() );
         deep_construct_inner< typename mpl::pop_front< InnerList >::type >(
           pInnerContext, outermostContextBase );
       }
