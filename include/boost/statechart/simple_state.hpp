@@ -315,10 +315,10 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
     }
 
     template< class DestinationState, class Args >
-    result transit(Args const &_args)
+    result transit( const Args & args)
     {
       return transit_impl< DestinationState, outermost_context_type >(
-        detail::no_transition_function(), _args );
+        detail::no_transition_function(), args );
     }
 
     template< class DestinationState, class TransitionContext, class Event >
@@ -329,6 +329,16 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
       return transit_impl< DestinationState, TransitionContext >(
         detail::transition_function< TransitionContext, Event >(
           pTransitionAction, evt ), detail::empty_args() );
+    }
+
+    template< class DestinationState, class TransitionContext, class Event, class Args >
+    result transit(
+      void ( TransitionContext::*pTransitionAction )( const Event & ),
+      const Event & evt, const Args & args )
+    {
+      return transit_impl< DestinationState, TransitionContext >(
+        detail::transition_function< TransitionContext, Event >(
+          pTransitionAction, evt ), args );
     }
 
     result terminate()
@@ -601,10 +611,10 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
     static void deep_construct(
       const context_ptr_type & pContext,
       outermost_context_base_type & outermostContextBase,
-      detail::empty_args const &_args)
+      const detail::empty_args & args)
     {
       const inner_context_ptr_type pInnerContext(
-        shallow_construct( pContext, outermostContextBase, _args ) );
+        shallow_construct( pContext, outermostContextBase, args ) );
       deep_construct_inner< inner_initial_list >(
         pInnerContext, outermostContextBase );
     }
@@ -612,7 +622,7 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
     static inner_context_ptr_type shallow_construct(
       const context_ptr_type & pContext,
       outermost_context_base_type & outermostContextBase,
-      detail::empty_args const &)
+      const detail::empty_args &)
     {
       const inner_context_ptr_type pInnerContext( new MostDerived );
       pInnerContext->set_context( pContext );
@@ -715,7 +725,7 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
               class TransitionContext,
               class TransitionAction,
               class Args >
-    result transit_impl( const TransitionAction & transitionAction, Args const &_args)
+    result transit_impl( const TransitionAction & transitionAction, const Args & args)
     {
       typedef typename mpl::find_if<
         context_type_list,
@@ -814,7 +824,7 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
 
       detail::constructor<
         context_list_type, outermost_context_base_type >::construct(
-          pCommonContext, outermostContextBase, _args );
+          pCommonContext, outermostContextBase, args );
 
       return detail::result_utility::make_result( detail::do_discard_event );
     }

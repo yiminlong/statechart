@@ -64,18 +64,18 @@ struct outer_constructor
     typename mpl::next< to_construct_iter >::type
   >::type last_inner_initial_list;
 
-  template<typename Args>
+  template< class Args >
   static void construct(
     const context_ptr_type & pContext,
     OutermostContextBase & outermostContextBase,
-    Args const &_args)
+    const Args & args)
   {
     const inner_context_ptr_type pInnerContext =
       to_construct::shallow_construct( pContext, outermostContextBase, detail::empty_args() );
     to_construct::template deep_construct_inner<
       first_inner_initial_list >( pInnerContext, outermostContextBase );
     constructor< inner_context_list, OutermostContextBase >::construct(
-      pInnerContext, outermostContextBase, _args );
+      pInnerContext, outermostContextBase, args );
     to_construct::template deep_construct_inner<
       last_inner_initial_list >( pInnerContext, outermostContextBase );
   }
@@ -88,13 +88,13 @@ struct inner_constructor
   typedef typename mpl::front< ContextList >::type to_construct;
   typedef typename to_construct::context_ptr_type context_ptr_type;
 
-  template<typename Args>
+  template< class Args >
   static void construct(
     const context_ptr_type & pContext,
     OutermostContextBase & outermostContextBase,
-    Args const &_args)
+    const Args & args)
   {
-    to_construct::deep_construct( pContext, outermostContextBase, _args );
+    to_construct::deep_construct( pContext, outermostContextBase, args );
   }
 };
 
